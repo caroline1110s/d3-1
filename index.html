@@ -9,10 +9,7 @@
       #container {
         text-align: center;
       }
-      .pie-title {
-        font-size: 20px;
-        font-weight: 600;
-      }
+
       #pieTooltip {
         background: #eee;
         box-shadow: 0 0 5px #999999;
@@ -33,7 +30,7 @@
         color: #333;
       }
       strong {
-        color: orange;
+        color: black;
         font-size: 16px;
       }
       .d3-tip {
@@ -41,22 +38,19 @@
         font-weight: 400;
         font-family: 'avenir next', Arial, sans-serif;
         padding: 6px;
-        background: rgba(0, 0, 0, 0.6);
-        color: #ffa500;
+        color: black;
         border-radius: 1px;
         pointer-events: none;
       }
-      /* Creates a small triangle extender for the tooltip */
       .d3-tip:after {
         box-sizing: border-box;
         display: inline;
-        font-size: 8px;
+        font-size: 10px;
         line-height: 1.5;
-        color: rgba(0, 0, 0, 0.6);
+        color: black;
         position: absolute;
         pointer-events: none;
       }
-      /* Northward tooltips */
       .d3-tip.n:after {
         content: '\25BC';
         margin: -1px 0 0 0;
@@ -64,14 +58,12 @@
         left: 0;
         text-align: center;
       }
-      /* Eastward tooltips */
       .d3-tip.e:after {
         content: '\25C0';
         margin: -4px 0 0 0;
         top: 50%;
         left: -8px;
       }
-      /* Southward tooltips */
       .d3-tip.s:after {
         content: '\25B2';
         margin: 0 0 1px 0;
@@ -79,7 +71,6 @@
         left: 0;
         text-align: center;
       }
-      /* Westward tooltips */
       .d3-tip.w:after {
         content: '\25B6';
         margin: -4px 0 0 -1px;
@@ -140,9 +131,9 @@
         svg
           .append('g')
           .attr('transform', `translate(120,60)`)
-          .attr('class', 'pie-title')
           .append('text')
-          .text('Video Games Sales by Platform(million)');
+          .text('Video Games Sales by Platform(million)')
+          .attr('font-size','100');
 
         const g = svg
           .append('g')
@@ -198,8 +189,8 @@
             pieTooltip.style('display', 'none');
           });
 
-        var innerRadius = 0; // 内半径
-        var outerRadius = 420; // 外半径
+        var innerRadius = 0;
+        var outerRadius = 420;
         var arc_generator = d3
           .arc()
           .innerRadius(innerRadius)
@@ -224,7 +215,6 @@
       function drawBar(d) {
         d3.select('#container>svg').remove();
         const barColor = d3.scaleOrdinal(d3.schemeCategory10);
-        // filter data by Platform
         const filterData = globalData.filter(
           (item) => item.Platform === d.data.key,
         );
@@ -239,57 +229,55 @@
         });
         const resultList = [];
         Object.keys(obj).forEach((item) => {
-          resultList.push({ year: item, population: +obj[item].toFixed(2) });
+          resultList.push({ num: item, figure: +obj[item].toFixed(2) });
         });
         console.log(resultList);
         const data = [...resultList].sort(
-          (a, b) => b.population - a.population,
+          (a, b) => b.figure - a.figure,
         );
-        var width = 700,
+        const width = 700,
           height = 400,
           margin = { left: 50, top: 50, right: 50, bottom: 50 },
           svg_width = width + margin.left + margin.right,
           svg_height = height + margin.top + margin.bottom;
 
-        //离散缩放 population=>[0,width]
-        var scale_x = d3
+        const scale_x = d3
           .scaleBand()
           .domain(
             data.map(function (d) {
-              return d.year;
+              return d.num;
             }),
           )
           .range([0, width])
           .padding(0.1);
 
-        //线性缩放
-        var scale_y = d3
+        const scale_y = d3
           .scaleLinear()
           .domain([
             0,
             d3.max(data, function (d) {
-              return d.population;
+              return d.figure;
             }),
           ])
           .range([height, 0]);
 
-        var svg = d3
+        const svg = d3
           .select('#container')
           .append('svg')
           .attr('width', svg_width)
           .attr('height', svg_height);
 
-        var chart = svg
+        const chart = svg
           .append('g')
           .attr(
             'transform',
             'translate(' + margin.left + ',' + margin.top + ')',
           );
 
-        var x_axis_color = 'steelblue',
+        const x_axis_color = 'steelblue',
           y_axis_color = 'steelblue';
 
-        var x_axis = chart
+        const x_axis = chart
           .append('g')
           .call(d3.axisBottom(scale_x))
           .attr('transform', 'translate(0,' + height + ')');
@@ -300,7 +288,7 @@
 
         x_axis.selectAll('text').attr('font-size', '1em');
 
-        var y_axis = chart.append('g').call(d3.axisLeft(scale_y));
+        const y_axis = chart.append('g').call(d3.axisLeft(scale_y));
 
         y_axis.selectAll('path').attr('stroke', y_axis_color);
 
@@ -308,26 +296,25 @@
 
         y_axis.selectAll('text').attr('font-size', '1em');
 
-        //Y轴注解
         chart
           .append('text')
           .text('(million)')
           .attr('transform', 'translate(' + -50 + ',' + -20 + ')')
           .attr('dy', '1em');
-        //X轴注解
+
         chart
           .append('text')
           .text('(Genre)')
           .attr('transform', 'translate(' + width + ',' + height + ')')
           .attr('dy', '1em');
 
-        var bar = chart
+        const bar = chart
           .selectAll('.bar')
           .data(data)
           .enter()
           .append('g')
           .attr('transform', function (d, i) {
-            return 'translate(' + scale_x(d.year) + ',0)';
+            return 'translate(' + scale_x(d.num) + ',0)';
           })
           .attr('fill', function (d, i) {
             return barColor(i);
@@ -336,10 +323,10 @@
         bar
           .append('rect')
           .attr('y', function (d) {
-            return scale_y(d.population);
+            return scale_y(d.figure);
           })
           .attr('height', function (d) {
-            return height - scale_y(d.population);
+            return height - scale_y(d.figure);
           })
           .attr('width', scale_x.bandwidth())
           .attr('class', '.rect')
@@ -354,10 +341,10 @@
         bar
           .append('text')
           .text(function (d) {
-            return d.population;
+            return d.figure;
           })
           .attr('y', function (d) {
-            return scale_y(d.population);
+            return scale_y(d.figure);
           })
           .attr('x', scale_x.bandwidth() / 2)
           .attr('dy', '1em')
